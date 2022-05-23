@@ -19,6 +19,13 @@ client.on("messageCreate", msg => {
     //Async function to make sure we wait for our response before we go any further
     async function getData(response){
         
+        //Global Variables declaration
+        let name = "";
+        let image = '';
+        let result;
+        let abilities = [];
+        let types = [];
+
         //If the user inputs an invalid name display error message. 
         if(response.status == 404){
             console.log("NOT FOUND");
@@ -30,16 +37,21 @@ client.on("messageCreate", msg => {
             result = await response.json();
         }
 
-        //Global Variables declaration
-        let name = "";
-        let image = '';
-        let result;
-
         //Set info variables and assign them to their values from the JSON data api response
         let height = result.height.toString();
         let weight = result.weight.toString();
         let pname = result.forms[0].name.toString();
         let front = result.sprites.front_default.toString();
+
+        //Get abilities for each pokemon (amount can vary based on specific poke)
+        for(let i = 0; i < result.abilities.length; i++){
+            abilities.push(result.abilities[i].ability.name);
+        }
+        //Get type/types for each pokemon (amount can vary based on specific poke)
+        for(let i = 0; i < result.types.length; i++){
+            types.push(result.types[i].type.name);
+        }
+
 
         //Generic embed message to send with values shown from the info variables (taken from the API)
         const embed = new MessageEmbed()
@@ -47,6 +59,8 @@ client.on("messageCreate", msg => {
             .setTitle('Pokedéx')
             .addFields(
                 { name: 'Name', value: pname },
+                { name: 'Abilities', value: abilities.toString() },
+                { name: 'Types', value: types.toString() },
                 { name: 'Height', value: height },
                 { name: 'Weight', value: weight },
             )
@@ -71,6 +85,7 @@ client.on("messageCreate", msg => {
       .then(response => getData(response));
     }
   })
+  
 
 //Login to the bot using the token (from the environment variable located in the .env file at the root directory)
 client.login(process.env.TOKEN);
